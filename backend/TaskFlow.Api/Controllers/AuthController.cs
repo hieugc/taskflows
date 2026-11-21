@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TaskFlow.Api.Contracts;
@@ -15,6 +16,7 @@ namespace TaskFlow.Api.Controllers;
 public sealed class AuthController(AppDbContext db, PasswordHasher<AppUser> passwordHasher, TokenService tokens) : ControllerBase
 {
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken ct)
     {
@@ -37,6 +39,7 @@ public sealed class AuthController(AppDbContext db, PasswordHasher<AppUser> pass
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request, CancellationToken ct)
     {

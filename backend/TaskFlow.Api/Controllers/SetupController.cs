@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Api.Contracts;
 using TaskFlow.Api.Data;
@@ -16,6 +17,7 @@ namespace TaskFlow.Api.Controllers;
 public sealed class SetupController(AppDbContext db, PasswordHasher<AppUser> passwordHasher, TokenService tokens, IConfiguration configuration) : ControllerBase
 {
     /// <summary>One-time bootstrap. Disabled unless BOOTSTRAP_ADMIN_TOKEN is configured.</summary>
+    [EnableRateLimiting("bootstrap")]
     [HttpPost("bootstrap-admin")]
     public async Task<IActionResult> BootstrapAdmin(BootstrapAdminRequest request, CancellationToken ct)
     {

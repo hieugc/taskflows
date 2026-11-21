@@ -6,14 +6,14 @@
 | TF-002 | Architecture and data/API model | Implemented | `architecture.md`, `api-contract.md`, `authorization-matrix.md` |
 | TF-003 | PostgreSQL schema and Docker Compose | Implemented | `db/init/001-schema.sql`, `docker-compose.yml`; schema exercised by PostgreSQL Testcontainers integration suite |
 | TF-004 | .NET API foundation | Implemented, CI-verified | Self-hosted .NET 10 Release build |
-| TF-005 | Authentication and global RBAC | Implemented, integration-tested | Registration role restriction, login, token role freshness |
+| TF-005 | Authentication and global RBAC | Implemented, integration-tested | Registration role restriction, login, token role freshness, IP-based auth/bootstrap throttling |
 | TF-006 | Projects and membership | Implemented, integration-tested | Project membership scoping and resource privacy |
 | TF-007 | Tasks and assignment rules | Implemented, integration-tested | Assigned member status transition and task-management authorization |
 | TF-008 | Comments | Implemented, integration-tested | Project-member comment creation/read, author attribution, non-member isolation |
 | TF-009 | Dashboard analytics | Implemented, integration-tested | KPI counts, status breakdown, and project-scope isolation |
 | TF-010 | React shell and auth screens | Implemented, CI-verified | Node.js 22, Vitest, Vite production build |
 | TF-011 | Dashboard/projects/tasks/comments UI | Implemented, browser-tested | Playwright covers manager project/task/comment flow and task status updates |
-| TF-012 | QA/security/review/docs | In progress | PostgreSQL integration tests and Playwright accessibility smoke checks added; production security hardening remains |
+| TF-012 | QA/security/review/docs | In progress | PostgreSQL integration tests, API security headers, IP-based throttling, and Playwright accessibility smoke checks; refresh-token flow and full accessibility audit remain |
 
 ## Automated browser coverage
 
@@ -26,7 +26,6 @@ Playwright runs against a real Chromium browser and a Vite development server. A
 ## Remaining before production readiness
 
 - Complete a full color-contrast and responsive/keyboard accessibility audit.
-- Add login/register/bootstrap rate limiting and security response headers.
 - Replace sessionStorage bearer tokens with a refresh-token cookie flow and CSRF protection.
 - Complete production security hardening in `security-review.md`.
 - Configure a deployment target, runtime secrets, health checks, rollback, and an approved deployment trigger before enabling CD.

@@ -50,9 +50,9 @@ GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushe
 
 ## Development notes
 
-- Registration always creates a `Member`; public registration cannot self-assign privileged roles.
+- Registration always creates a `Member`; public registration cannot self-assign privileged roles. Login/register are limited to 10 requests per client IP per minute; Admin bootstrap is limited to 5 per 15 minutes.
 - The first Admin can be provisioned once through `POST /api/setup/bootstrap-admin` when `BOOTSTRAP_ADMIN_TOKEN` is configured (minimum 16 characters). Follow `docs/first-admin.md`, then remove the secret from the environment. Admins can manage global roles through `/api/admin/users/{id}/role`. Role changes invalidate existing access tokens; users must sign in again.
-- This MVP uses short-lived bearer tokens stored in `sessionStorage` in the browser. For production, move to a refresh-token flow using Secure, HttpOnly, SameSite cookies, add CSRF protection where applicable, and rotate/revoke refresh tokens.
+- API responses include security headers (`nosniff`, frame denial, referrer/permissions policy, restrictive CSP, and HSTS on HTTPS). This MVP uses short-lived bearer tokens stored in `sessionStorage` in the browser. For production, move to a refresh-token flow using Secure, HttpOnly, SameSite cookies, add CSRF protection where applicable, and rotate/revoke refresh tokens.
 - `db/init/001-schema.sql` is the initial local bootstrap schema. For ongoing production schema evolution, generate and review EF Core migrations; do not rely on `EnsureCreated`.
 - No production deployment, DNS change, or paid service has been performed.
 
