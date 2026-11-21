@@ -67,7 +67,7 @@ test('login errors are announced and do not create an authenticated session', as
 
   await page.goto('/login');
   await page.getByLabel('Email address').fill('wrong@example.com');
-  await page.getByLabel('Password').fill('wrong-password');
+  await page.getByLabel('Password', { exact: true }).fill('wrong-password');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await expect(page.getByRole('alert')).toHaveText('Email or password is incorrect.');
@@ -182,7 +182,7 @@ test('manager can create a project, add a task, update its status, and post a co
 
   await page.goto('/login');
   await page.getByLabel('Email address').fill(user.email);
-  await page.getByLabel('Password').fill('correct-password');
+  await page.getByLabel('Password', { exact: true }).fill('correct-password');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('heading', { name: 'Good morning, Hieu' })).toBeVisible();
 
