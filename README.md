@@ -46,7 +46,7 @@ The API listens on `http://localhost:5080` in the supplied launch profile. The f
 
 ## CI and browser verification
 
-GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job runs .NET 10 Release build and PostgreSQL Testcontainers integration tests. The frontend job runs Vitest, the Vite production build, and Playwright Chromium E2E tests. Browser checks cover authentication redirects/errors, project creation, task creation/status changes, comments, and an axe accessibility smoke test for the sign-in form. TRX and Playwright reports are uploaded as 14-day artifacts.
+GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job runs .NET 10 Release build and PostgreSQL Testcontainers integration tests. The frontend job runs Vitest, the Vite production build, and Playwright Chromium E2E tests. Browser checks cover authentication redirects/errors, project creation, task creation/status changes, comments, and WCAG 2.1 A/AA contrast, keyboard-navigation, and mobile viewport checks for the sign-in form. TRX and Playwright reports are uploaded as 14-day artifacts.
 
 ## Development notes
 

@@ -21,11 +21,11 @@ Playwright runs against a real Chromium browser and a Vite development server. A
 - Unauthenticated users are redirected to sign in.
 - Invalid credentials are announced and do not create a session.
 - A manager can create a project, add a task, update its status, and post a comment.
-- The sign-in form passes an axe accessibility smoke check for WCAG 2 A/AA and 2.1 A/AA rules except automated color-contrast measurement.
+- The sign-in form passes axe checks for WCAG 2 A/AA and 2.1 A/AA, including automated color contrast. Keyboard navigation and a 375px mobile viewport are also covered.
 
 ## Remaining before production readiness
 
-- Complete a full color-contrast and responsive/keyboard accessibility audit.
+- Extend the current accessibility audit to registration, dashboard, project, and task screens.
 - Replace sessionStorage bearer tokens with a refresh-token cookie flow and CSRF protection.
 - Complete production security hardening in `security-review.md`.
 - Configure a deployment target, runtime secrets, health checks, rollback, and an approved deployment trigger before enabling CD.
