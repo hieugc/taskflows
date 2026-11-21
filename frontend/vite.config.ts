@@ -7,5 +7,8 @@ export default defineConfig({
     port: 5173,
     proxy: { '/api': { target: 'http://localhost:5080', changeOrigin: true } },
   },
-  test: { environment: 'node' },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.{ts,tsx}'],
+  },
 });
