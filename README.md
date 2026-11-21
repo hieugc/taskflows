@@ -20,7 +20,7 @@ A modular monolith with a React SPA and one ASP.NET Core API. The API owns all a
 
 - .NET 10 SDK
 - Node.js 22+
-- Docker Engine / Docker Desktop (for local PostgreSQL)
+- Docker Engine / Docker Desktop (for local PostgreSQL and PostgreSQL integration tests)
 
 ## Quick start
 
@@ -42,7 +42,11 @@ A modular monolith with a React SPA and one ASP.NET Core API. The API owns all a
    ```
 6. Open `http://localhost:5173`.
 
-The API listens on `http://localhost:5080` in the supplied launch profile. The frontend proxies `/api` to the API. Run backend tests with `dotnet test TaskFlow.sln -c Release`; run frontend tests with `cd frontend && npm test`.
+The API listens on `http://localhost:5080` in the supplied launch profile. The frontend proxies `/api` to the API. Run backend tests with `dotnet test TaskFlow.sln -c Release`; these include PostgreSQL integration tests and require a working Docker daemon. Run frontend tests with `cd frontend && npm test`, and build the frontend with `cd frontend && npm run build`.
+
+## CI
+
+GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job verifies Docker availability, restores and builds the .NET 10 solution in Release, then runs unit tests and real-PostgreSQL integration tests using Testcontainers. The frontend job runs Vitest and the Vite production build using Node.js 22.
 
 ## Development notes
 
@@ -50,8 +54,8 @@ The API listens on `http://localhost:5080` in the supplied launch profile. The f
 - The first Admin can be provisioned once through `POST /api/setup/bootstrap-admin` when `BOOTSTRAP_ADMIN_TOKEN` is configured (minimum 16 characters). Follow `docs/first-admin.md`, then remove the secret from the environment. Admins can manage global roles through `/api/admin/users/{id}/role`. Role changes invalidate existing access tokens; users must sign in again.
 - This MVP uses short-lived bearer tokens stored in `sessionStorage` in the browser. For production, move to a refresh-token flow using Secure, HttpOnly, SameSite cookies, add CSRF protection where applicable, and rotate/revoke refresh tokens.
 - `db/init/001-schema.sql` is the initial local bootstrap schema. For ongoing production schema evolution, generate and review EF Core migrations; do not rely on `EnsureCreated`.
-- No production deployment, public repository creation, DNS change, or paid service has been performed.
+- No production deployment, DNS change, or paid service has been performed.
 
 ## Verification status
 
-The frontend is designed for Node.js 22 and has a production build script. Backend compilation and database integration tests require the .NET 10 SDK and PostgreSQL/Docker, which were not available in the implementation environment. Do not interpret source generation as a successful backend build.
+The self-hosted CI workflow is the source of truth for backend restore/build/unit/integration tests and frontend test/build results. PostgreSQL integration tests start an isolated `postgres:17-alpine` container and clean database state between test cases. Production deployment is not configured until a deployment target and its runtime environment are defined.

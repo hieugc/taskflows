@@ -4,28 +4,31 @@
 |---|---|---|---|
 | TF-001 | Product brief and requirements | Implemented | `product-brief.md`, `requirements.md` |
 | TF-002 | Architecture and data/API model | Implemented | `architecture.md`, `api-contract.md`, `authorization-matrix.md` |
-| TF-003 | PostgreSQL schema and Docker Compose | Implemented, not runtime-tested | `db/init/001-schema.sql`, `docker-compose.yml`; Docker unavailable in build environment |
-| TF-004 | .NET API foundation | Source implemented, build blocked | .NET 10 SDK unavailable |
-| TF-005 | Authentication and global RBAC | Source implemented, tests blocked | PasswordHasher, JWT, one-time bootstrap, role freshness check; .NET unavailable |
-| TF-006 | Projects and membership | Source implemented, tests blocked | Project endpoints and membership access policy |
-| TF-007 | Tasks and assignment rules | Source implemented, tests blocked | Task CRUD/status/delete and assignment authorization |
-| TF-008 | Comments | Source implemented, tests blocked | Membership-scoped read/create endpoints |
-| TF-009 | Dashboard analytics | Source implemented, tests blocked | Scoped counts, status/priority breakdowns, recent tasks |
-| TF-010 | React shell and auth screens | Source implemented, build blocked | React/Vite/TypeScript source; npm registry DNS unavailable |
-| TF-011 | Dashboard/projects/tasks/comments UI | Source implemented, build blocked | Responsive UI, create flows, assignment, status changes, comments |
-| TF-012 | QA/security/review/docs | Partial | Unit and frontend tests authored; full execution blocked by missing SDK, Docker, and package network access |
+| TF-003 | PostgreSQL schema and Docker Compose | Implemented | `db/init/001-schema.sql`, `docker-compose.yml`; schema exercised by PostgreSQL Testcontainers integration suite |
+| TF-004 | .NET API foundation | Implemented, CI-verified | Self-hosted .NET 10 Release build |
+| TF-005 | Authentication and global RBAC | Implemented, integration-tested | Registration role restriction, login, token role freshness |
+| TF-006 | Projects and membership | Implemented, integration-tested | Project membership scoping and resource privacy |
+| TF-007 | Tasks and assignment rules | Implemented, integration-tested | Assigned member status transition and task-management authorization |
+| TF-008 | Comments | Source implemented | Comment endpoints exist; dedicated comment API integration coverage remains |
+| TF-009 | Dashboard analytics | Source implemented | Dashboard aggregation exists; dedicated analytics integration coverage remains |
+| TF-010 | React shell and auth screens | Implemented, CI-verified | Node.js 22, Vitest, Vite production build |
+| TF-011 | Dashboard/projects/tasks/comments UI | Source implemented | Responsive UI and API integration; browser E2E remains |
+| TF-012 | QA/security/review/docs | In progress | PostgreSQL integration tests added; further endpoint coverage, browser E2E, and production security hardening remain |
 
-## Verification performed
-- TypeScript/TSX syntax transpilation: 13 files, 0 syntax diagnostics.
-- JSON manifests/configuration parsed successfully.
-- .NET project files parsed as XML successfully.
-- Full `npm install` could not complete because registry DNS resolution returned `EAI_AGAIN`.
-- `dotnet test` and `dotnet build` were not run because `dotnet` is not installed.
-- PostgreSQL/Docker integration was not run because Docker is not installed.
+## PostgreSQL integration coverage
 
-## Outstanding before claiming production readiness
-- Run .NET restore/build/test on a machine with .NET 10 SDK.
-- Run frontend npm install, type-check, Vitest, and Vite production build with registry access.
-- Start PostgreSQL, apply schema, execute auth/project/task/comment/dashboard integration tests.
-- Perform browser E2E and accessibility checks.
-- Complete production security hardening listed in `security-review.md`.
+The integration suite uses Testcontainers to start a real PostgreSQL 17 container. Tests cover:
+- Registration always creates a Member; login accepts normalized email.
+- Project lists and detail endpoints enforce membership scope.
+- Assigned members may change task status but cannot edit task fields.
+- Only project managers may create tasks.
+- A changed global role invalidates previously issued JWTs.
+
+The database is isolated for the test class and reset between test cases.
+
+## Remaining before production readiness
+
+- Add dedicated comments and dashboard analytics integration tests.
+- Add browser E2E and accessibility checks.
+- Complete production security hardening in `security-review.md`.
+- Configure a deployment target, runtime secrets, health checks, rollback, and an approved deployment trigger before enabling CD.
