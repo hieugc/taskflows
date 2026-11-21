@@ -215,13 +215,31 @@ test('manager can create a project, add a task, update its status, and post a co
   await expect(page.getByText('Hieu Nguyen', { exact: true }).last()).toBeVisible();
 });
 
-test('sign-in page has accessible form labels and named controls', async ({ page }) => {
+test('sign-in page passes WCAG 2.1 A/AA automated accessibility checks including contrast', async ({ page }) => {
   await page.goto('/login');
 
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .disableRules(['color-contrast'])
     .analyze();
 
   expect(accessibility.violations).toEqual([]);
+});
+
+test('sign-in page supports keyboard navigation and fits a narrow mobile viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/login');
+
+  await page.keyboard.press('Tab');
+  await expect(page.getByLabel('Email address')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByLabel('Password', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Show password' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Sign in' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Create an account' })).toBeFocused();
+
+  const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(documentWidth).toBeLessThanOrEqual(375);
 });
