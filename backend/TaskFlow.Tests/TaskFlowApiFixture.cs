@@ -117,7 +117,12 @@ public sealed class TaskFlowApiFixture : IAsyncLifetime
         return project;
     }
 
-    public async Task<WorkTask> CreateTaskAsync(Project project, AppUser creator, AppUser? assignee = null)
+    public async Task<WorkTask> CreateTaskAsync(
+        Project project,
+        AppUser creator,
+        AppUser? assignee = null,
+        TaskFlow.Api.Domain.TaskStatus status = TaskFlow.Api.Domain.TaskStatus.Todo,
+        DateOnly? dueDate = null)
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -126,7 +131,9 @@ public sealed class TaskFlowApiFixture : IAsyncLifetime
             ProjectId = project.Id,
             CreatedById = creator.Id,
             AssigneeId = assignee?.Id,
-            Title = "Integration test task"
+            Title = "Integration test task",
+            Status = status,
+            DueDate = dueDate
         };
         db.WorkTasks.Add(task);
         await db.SaveChangesAsync();

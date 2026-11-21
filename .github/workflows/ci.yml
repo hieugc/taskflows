@@ -43,7 +43,16 @@ jobs:
         run: dotnet build TaskFlow.sln --configuration Release --no-restore
 
       - name: Run unit and PostgreSQL integration tests
-        run: dotnet test TaskFlow.sln --configuration Release --no-build --logger "trx;LogFileName=backend-tests.trx"
+        run: dotnet test TaskFlow.sln --configuration Release --no-build --results-directory ./artifacts/test-results --logger "console;verbosity=normal" --logger "trx;LogFileName=backend-tests.trx"
+
+      - name: Upload backend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results-${{ github.run_id }}
+          path: artifacts/test-results/*.trx
+          if-no-files-found: warn
+          retention-days: 14
 
   frontend:
     name: Frontend - React + TypeScript

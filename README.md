@@ -46,7 +46,7 @@ The API listens on `http://localhost:5080` in the supplied launch profile. The f
 
 ## CI
 
-GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job verifies Docker availability, restores and builds the .NET 10 solution in Release, then runs unit tests and real-PostgreSQL integration tests using Testcontainers. The frontend job runs Vitest and the Vite production build using Node.js 22.
+GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job verifies Docker availability, restores and builds the .NET 10 solution in Release, then runs unit tests and real-PostgreSQL integration tests using Testcontainers. TRX test results are uploaded as a 14-day artifact. The frontend job runs Vitest and the Vite production build using Node.js 22.
 
 ## Development notes
 
@@ -58,4 +58,4 @@ GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushe
 
 ## Verification status
 
-The self-hosted CI workflow is the source of truth for backend restore/build/unit/integration tests and frontend test/build results. PostgreSQL integration tests start an isolated `postgres:17-alpine` container and clean database state between test cases. Production deployment is not configured until a deployment target and its runtime environment are defined.
+The self-hosted CI workflow is the source of truth for backend restore/build/unit/integration tests and frontend test/build results. PostgreSQL integration tests start an isolated `postgres:17-alpine` container and clean database state between test cases. Production deployment is not configured until its target and runtime environment are defined.

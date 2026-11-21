@@ -117,6 +117,67 @@ public sealed class ApiIntegrationTests(TaskFlowApiFixture fixture) : IClassFixt
     }
 
     [Fact]
+    public async Task Task_comments_are_available_to_project_members_and_include_the_author()
+    {
+        await fixture.ResetDatabaseAsync();
+        var manager = await fixture.CreateUserAsync("Project Manager", "comments-manager@example.com", GlobalRole.Manager);
+        var member = await fixture.CreateUserAsync("Comment Author", "comment-author@example.com");
+        var outsider = await fixture.CreateUserAsync("Comment Outsider", "comment-outsider@example.com");
+        var project = await fixture.CreateProjectAsync(manager, "Comment project", (member, ProjectRole.Member));
+        var task = await fixture.CreateTaskAsync(project, manager);
+
+        using var memberClient = fixture.CreateAuthenticatedClient(member);
+        var created = await memberClient.PostAsJsonAsync($"/api/tasks/{task.Id}/comments", new
+        {
+            body = "  Please review the latest update.  "
+        });
+
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var comment = await created.Content.ReadFromJsonAsync<CommentResponse>();
+        Assert.NotNull(comment);
+        Assert.Equal(member.Id, comment.AuthorId);
+        Assert.Equal("Please review the latest update.", comment.Body);
+
+        var comments = await memberClient.GetFromJsonAsync<List<CommentResponse>>($"/api/tasks/{task.Id}/comments");
+        Assert.NotNull(comments);
+        Assert.Single(comments);
+        Assert.Equal(member.Name, comments[0].AuthorName);
+
+        using var outsiderClient = fixture.CreateAuthenticatedClient(outsider);
+        var hidden = await outsiderClient.GetAsync($"/api/tasks/{task.Id}/comments");
+        Assert.Equal(HttpStatusCode.NotFound, hidden.StatusCode);
+    }
+
+    [Fact]
+    public async Task Dashboard_analytics_only_include_projects_visible_to_the_current_member()
+    {
+        await fixture.ResetDatabaseAsync();
+        var owner = await fixture.CreateUserAsync("Dashboard Owner", "dashboard-owner@example.com", GlobalRole.Manager);
+        var member = await fixture.CreateUserAsync("Dashboard Member", "dashboard-member@example.com");
+        var outsider = await fixture.CreateUserAsync("Dashboard Outsider", "dashboard-outsider@example.com");
+        var visibleProject = await fixture.CreateProjectAsync(owner, "Visible analytics", (member, ProjectRole.Member));
+        var hiddenProject = await fixture.CreateProjectAsync(outsider, "Hidden analytics");
+        var yesterday = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
+
+        var openTask = await fixture.CreateTaskAsync(visibleProject, owner, status: TaskFlow.Api.Domain.TaskStatus.Todo, dueDate: yesterday);
+        var completedTask = await fixture.CreateTaskAsync(visibleProject, owner, status: TaskFlow.Api.Domain.TaskStatus.Done, dueDate: yesterday);
+        await fixture.CreateTaskAsync(hiddenProject, outsider, status: TaskFlow.Api.Domain.TaskStatus.Todo, dueDate: yesterday);
+
+        using var client = fixture.CreateAuthenticatedClient(member);
+        var dashboard = await client.GetFromJsonAsync<DashboardResponse>("/api/dashboard/summary");
+
+        Assert.NotNull(dashboard);
+        Assert.Equal(1, dashboard.ProjectCount);
+        Assert.Equal(1, dashboard.OpenTaskCount);
+        Assert.Equal(1, dashboard.CompletedTaskCount);
+        Assert.Equal(1, dashboard.OverdueTaskCount);
+        Assert.Contains(dashboard.StatusBreakdown, item => item.Name == "Todo" && item.Count == 1);
+        Assert.Contains(dashboard.StatusBreakdown, item => item.Name == "Done" && item.Count == 1);
+        Assert.Equal(new[] { openTask.Id, completedTask.Id }.Order(), dashboard.RecentTasks.Select(x => x.Id).Order());
+        Assert.DoesNotContain(dashboard.RecentTasks, item => item.ProjectId == hiddenProject.Id);
+    }
+
+    [Fact]
     public async Task Changing_a_users_global_role_invalidates_existing_access_tokens()
     {
         await fixture.ResetDatabaseAsync();

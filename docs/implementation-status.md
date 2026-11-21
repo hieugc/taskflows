@@ -9,11 +9,11 @@
 | TF-005 | Authentication and global RBAC | Implemented, integration-tested | Registration role restriction, login, token role freshness |
 | TF-006 | Projects and membership | Implemented, integration-tested | Project membership scoping and resource privacy |
 | TF-007 | Tasks and assignment rules | Implemented, integration-tested | Assigned member status transition and task-management authorization |
-| TF-008 | Comments | Source implemented | Comment endpoints exist; dedicated comment API integration coverage remains |
-| TF-009 | Dashboard analytics | Source implemented | Dashboard aggregation exists; dedicated analytics integration coverage remains |
+| TF-008 | Comments | Implemented, integration-tested | Project-member comment creation/read, author attribution, non-member isolation |
+| TF-009 | Dashboard analytics | Implemented, integration-tested | KPI counts, status breakdown, and project-scope isolation |
 | TF-010 | React shell and auth screens | Implemented, CI-verified | Node.js 22, Vitest, Vite production build |
 | TF-011 | Dashboard/projects/tasks/comments UI | Source implemented | Responsive UI and API integration; browser E2E remains |
-| TF-012 | QA/security/review/docs | In progress | PostgreSQL integration tests added; further endpoint coverage, browser E2E, and production security hardening remain |
+| TF-012 | QA/security/review/docs | In progress | API integration coverage expanded; browser E2E and production security hardening remain |
 
 ## PostgreSQL integration coverage
 
@@ -22,13 +22,14 @@ The integration suite uses Testcontainers to start a real PostgreSQL 17 containe
 - Project lists and detail endpoints enforce membership scope.
 - Assigned members may change task status but cannot edit task fields.
 - Only project managers may create tasks.
+- Project members can create/read comments with author attribution; non-members cannot read them.
+- Dashboard KPI/status counts include only projects visible to the current user.
 - A changed global role invalidates previously issued JWTs.
 
 The database is isolated for the test class and reset between test cases.
 
 ## Remaining before production readiness
 
-- Add dedicated comments and dashboard analytics integration tests.
 - Add browser E2E and accessibility checks.
 - Complete production security hardening in `security-review.md`.
 - Configure a deployment target, runtime secrets, health checks, rollback, and an approved deployment trigger before enabling CD.
