@@ -55,12 +55,12 @@ jobs:
           retention-days: 14
 
   frontend:
-    name: Frontend - React + TypeScript
+    name: Frontend - React + TypeScript + Playwright
     runs-on:
       - self-hosted
       - macOS
       - ARM64
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: frontend
@@ -76,8 +76,25 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Run frontend tests
+      - name: Run frontend unit tests
         run: npm test
 
       - name: Build production assets
         run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Run browser E2E and accessibility smoke tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: warn
+          retention-days: 14

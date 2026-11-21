@@ -10,7 +10,7 @@ TaskFlow is a responsive project and task management application built with ASP.
 - Tasks with assignee, priority, due date, status, and description.
 - Project task comments.
 - Dashboard KPIs and project/task analytics.
-- Responsive React application with dashboard, projects, project detail, and authentication screens.
+- Responsive React application with dashboard, projects, project detail, and comments UI.
 
 ## Architecture
 
@@ -44,9 +44,9 @@ A modular monolith with a React SPA and one ASP.NET Core API. The API owns all a
 
 The API listens on `http://localhost:5080` in the supplied launch profile. The frontend proxies `/api` to the API. Run backend tests with `dotnet test TaskFlow.sln -c Release`; these include PostgreSQL integration tests and require a working Docker daemon. Run frontend tests with `cd frontend && npm test`, and build the frontend with `cd frontend && npm run build`.
 
-## CI
+## CI and browser verification
 
-GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job verifies Docker availability, restores and builds the .NET 10 solution in Release, then runs unit tests and real-PostgreSQL integration tests using Testcontainers. TRX test results are uploaded as a 14-day artifact. The frontend job runs Vitest and the Vite production build using Node.js 22.
+GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushes to `main`, pull requests targeting `main`, and manual dispatch. The backend job runs .NET 10 Release build and PostgreSQL Testcontainers integration tests. The frontend job runs Vitest, the Vite production build, and Playwright Chromium E2E tests. Browser checks cover authentication redirects/errors, project creation, task creation/status changes, comments, and an axe accessibility smoke test for the sign-in form. TRX and Playwright reports are uploaded as 14-day artifacts.
 
 ## Development notes
 
@@ -58,4 +58,4 @@ GitHub Actions runs on the repository's self-hosted macOS ARM64 runner for pushe
 
 ## Verification status
 
-The self-hosted CI workflow is the source of truth for backend restore/build/unit/integration tests and frontend test/build results. PostgreSQL integration tests start an isolated `postgres:17-alpine` container and clean database state between test cases. Production deployment is not configured until its target and runtime environment are defined.
+The self-hosted CI workflow is the source of truth for backend restore/build/unit/integration tests, frontend unit tests/build, and browser E2E checks. PostgreSQL integration tests start an isolated `postgres:17-alpine` container. Production deployment is not configured until its target and runtime environment are defined.

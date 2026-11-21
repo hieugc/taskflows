@@ -7,3 +7,5 @@
 *.user
 *.suo
 coverage/
+frontend/playwright-report/
+frontend/test-results/

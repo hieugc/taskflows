@@ -12,24 +12,21 @@
 | TF-008 | Comments | Implemented, integration-tested | Project-member comment creation/read, author attribution, non-member isolation |
 | TF-009 | Dashboard analytics | Implemented, integration-tested | KPI counts, status breakdown, and project-scope isolation |
 | TF-010 | React shell and auth screens | Implemented, CI-verified | Node.js 22, Vitest, Vite production build |
-| TF-011 | Dashboard/projects/tasks/comments UI | Source implemented | Responsive UI and API integration; browser E2E remains |
-| TF-012 | QA/security/review/docs | In progress | API integration coverage expanded; browser E2E and production security hardening remain |
+| TF-011 | Dashboard/projects/tasks/comments UI | Implemented, browser-tested | Playwright covers manager project/task/comment flow and task status updates |
+| TF-012 | QA/security/review/docs | In progress | PostgreSQL integration tests and Playwright accessibility smoke checks added; production security hardening remains |
 
-## PostgreSQL integration coverage
+## Automated browser coverage
 
-The integration suite uses Testcontainers to start a real PostgreSQL 17 container. Tests cover:
-- Registration always creates a Member; login accepts normalized email.
-- Project lists and detail endpoints enforce membership scope.
-- Assigned members may change task status but cannot edit task fields.
-- Only project managers may create tasks.
-- Project members can create/read comments with author attribution; non-members cannot read them.
-- Dashboard KPI/status counts include only projects visible to the current user.
-- A changed global role invalidates previously issued JWTs.
-
-The database is isolated for the test class and reset between test cases.
+Playwright runs against a real Chromium browser and a Vite development server. API requests are isolated with deterministic route fixtures so browser tests do not require a live API or persistent database. Coverage includes:
+- Unauthenticated users are redirected to sign in.
+- Invalid credentials are announced and do not create a session.
+- A manager can create a project, add a task, update its status, and post a comment.
+- The sign-in form passes an axe accessibility smoke check for WCAG 2 A/AA and 2.1 A/AA rules except automated color-contrast measurement.
 
 ## Remaining before production readiness
 
-- Add browser E2E and accessibility checks.
+- Complete a full color-contrast and responsive/keyboard accessibility audit.
+- Add login/register/bootstrap rate limiting and security response headers.
+- Replace sessionStorage bearer tokens with a refresh-token cookie flow and CSRF protection.
 - Complete production security hardening in `security-review.md`.
 - Configure a deployment target, runtime secrets, health checks, rollback, and an approved deployment trigger before enabling CD.
