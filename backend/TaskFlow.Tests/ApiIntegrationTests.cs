@@ -189,4 +189,17 @@ public sealed class ApiIntegrationTests(TaskFlowApiFixture fixture) : IClassFixt
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+    [Fact]
+    public async Task Api_responses_include_security_headers()
+    {
+        using var client = fixture.CreateClient();
+        var response = await client.GetAsync("/health");
+
+        Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
+        Assert.Equal("DENY", response.Headers.GetValues("X-Frame-Options").Single());
+        Assert.Equal("no-referrer", response.Headers.GetValues("Referrer-Policy").Single());
+        Assert.Equal("default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+            response.Headers.GetValues("Content-Security-Policy").Single());
+    }
+
 }
