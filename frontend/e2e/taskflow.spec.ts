@@ -186,7 +186,7 @@ test('manager can create a project, add a task, update its status, and post a co
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('heading', { name: 'Good morning, Hieu' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Projects' }).click();
+  await page.getByRole('link', { name: 'Projects', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'New project' }).click();
   await page.getByRole('dialog').getByLabel('Project name').fill('Website redesign');
